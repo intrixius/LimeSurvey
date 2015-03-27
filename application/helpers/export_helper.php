@@ -1704,21 +1704,40 @@ function tokensExport($iSurveyID)
     $oSurvey=Survey::model()->findByPk($iSurveyID);
     $bIsNotAnonymous= ($oSurvey->anonymized=='N' && $oSurvey->active=='Y');// db table exist (survey_$iSurveyID) ?
 
+<<<<<<< Updated upstream
     $bquery = "SELECT * FROM {{tokens_$iSurveyID}} where 1=1";
     $databasetype = Yii::app()->db->getDriverName();
+=======
+//    $oRecordSet = Yii::app()->db->createCommand()->from("{{tokens_$iSurveyID}}");
+    $criteria = new CDbCriteria();
+    $databasetype = Yii::app()->db->getDriverName();
+//    $oRecordSet->where("1=1");
+>>>>>>> Stashed changes
     if ($sEmailFiter!='')
     {
         if (in_array($databasetype, array('mssql', 'sqlsrv', 'dblib')))
         {
+<<<<<<< Updated upstream
             $bquery .= ' and CAST(email as varchar) like '.dbQuoteAll('%'.$sEmailFiter.'%', true);
         }
         else
         {
             $bquery .= ' and email like '.dbQuoteAll('%'.$sEmailFiter.'%', true);
+=======
+            $criteria->addSearchCondition("CAST(email as varchar)", dbQuoteAll('%'.$sEmailFiter.'%', true));
+//            $oRecordSet->andWhere("CAST(email as varchar) like ".dbQuoteAll('%'.$sEmailFiter.'%', true));
+        }
+        else
+        {
+            $criteria->addSearchCondition('email', dbQuoteAll('%'.$sEmailFiter.'%', true));
+//            $oRecordSet->andWhere("email like ".dbQuoteAll('%'.$sEmailFiter.'%', true));
+>>>>>>> Stashed changes
         }
     }
+
     if ($iTokenStatus==1)
     {
+<<<<<<< Updated upstream
         $bquery .= " and completed<>'N'";
     }
     elseif ($iTokenStatus==2)
@@ -1727,11 +1746,29 @@ function tokensExport($iSurveyID)
         if ($bIsNotAnonymous)
         {
             $bquery .=" and token not in (select token from {{survey_$iSurveyID}} group by token)";
+=======
+        $criteria->addCondition("Completed<>'N'");
+//        $oRecordSet->andWhere("completed<>'N'");
+    }
+    elseif ($iTokenStatus==2)
+    {
+        $criteria->addCondition("Completed='N'");
+//        $oRecordSet->andWhere("completed='N'");
+        if ($bIsNotAnonymous)
+        {
+            Token::model($iSurveyID)->select("token")->group("token")->findAll();
+            $oRecordSet->andWhere("token not in (select token from {{survey_$iSurveyID}} group by token)");
+>>>>>>> Stashed changes
         }
     }
     if ($iTokenStatus==3 && $bIsNotAnonymous)
     {
+<<<<<<< Updated upstream
         $bquery .= " and completed='N' and token in (select token from {{survey_$iSurveyID}} group by token)";
+=======
+        $criteria->addCondition("");
+        $oRecordSet->andWhere("completed='N' and token in (select token from {{survey_$iSurveyID}} group by token)");
+>>>>>>> Stashed changes
     }
 
     if ($iInvitationStatus==1)
